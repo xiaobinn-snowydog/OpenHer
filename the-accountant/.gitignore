@@ -1,0 +1,11 @@
+# 依赖与构建产物
+node_modules/
+*.log
+
+# 测试产物（截图等）
+shot_*.png
+playtest_result.txt
+
+# 系统
+.DS_Store
+Thumbs.db

@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>账房先生 · 竖切（序章 + 第一章）</title>
+<style>
+  :root{
+    --paper:#f3ead6; --paper2:#ece0c2; --panel:#e9dcbb; --board:#e4d3a6;
+    --ink:#28231e; --ink2:#6f6149; --faint:#9c8a6a;
+    --red:#9c2b22; --green:#3a6b40; --gold:#8a6d3b;
+    --rule:#cdbd9c; --rule2:#b3a07c;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:var(--paper);
+    background-image:
+      radial-gradient(130% 90% at 50% -10%, rgba(255,251,238,.55), transparent 55%),
+      radial-gradient(150% 130% at 50% 115%, rgba(50,36,18,.13), transparent 55%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    background-blend-mode:normal,normal,multiply;
+    color:var(--ink);
+    font-family:"Songti SC","STSong","SimSun",serif;
+    font-size:16px; line-height:2; letter-spacing:.02em;
+    display:flex; justify-content:center; -webkit-font-smoothing:antialiased;
+  }
+  #app{width:100%; max-width:660px; min-height:100%; padding:26px 30px 60px;
+       display:flex; flex-direction:column; gap:20px;
+       background:rgba(247,240,222,.32); box-shadow:0 0 70px rgba(40,28,12,.14);}
+
+  .sz{font-family:"PingFang SC","Heiti SC","Hiragino Sans GB","Noto Sans CJK SC","Source Han Sans SC","Microsoft YaHei",sans-serif}
+  html.no-sz .sz{display:none}
+  html.no-sz .arab{font-size:15px; color:inherit; margin-left:0}
+
+  /* 顶栏 */
+  .topbar{display:flex; gap:16px; align-items:stretch}
+  /* 水牌：竖排标牌 + 木色底 + 内框 */
+  .board{flex:1; position:relative; background:linear-gradient(180deg,#e8d8ac,#dfcd9c);
+         border:1.5px solid var(--ink); padding:16px 18px 16px 46px;
+         box-shadow:inset 0 0 0 4px rgba(247,240,222,.5), 0 2px 0 rgba(40,28,12,.2);}
+  .board .tag{position:absolute; left:0; top:0; bottom:0; width:30px; background:var(--ink);
+       color:var(--paper); writing-mode:vertical-rl; text-orientation:upright;
+       display:flex; align-items:center; justify-content:center; font-size:12px; letter-spacing:5px;}
+  .board .row{display:flex; justify-content:space-between; align-items:baseline}
+  .board .price{font-size:30px; font-weight:600; letter-spacing:1px}
+  .board .price.up{color:var(--red)} .board .price.down{color:var(--green)}
+  .board .sz{color:var(--ink2); font-size:18px; letter-spacing:3px}
+  .board .arab{color:var(--ink2); font-size:13px}
+
+  /* 工具：墨框小签，去 emoji */
+  .tools{display:flex; flex-direction:column; gap:8px; justify-content:center}
+  .tools button{font-family:inherit; cursor:pointer; background:transparent; border:1px solid var(--ink);
+       color:var(--ink); padding:7px 12px; font-size:13px; letter-spacing:4px; transition:all .15s}
+  .tools button:hover{background:var(--ink); color:var(--paper)}
+
+  /* 账本：朱丝栏 */
+  .ledger{position:relative; border:1.5px solid var(--ink); background:var(--panel);
+       background-image:repeating-linear-gradient(90deg, transparent 0 calc(50% - 1px), rgba(156,43,34,.16) calc(50% - 1px) calc(50% + 0px), transparent calc(50% + 1px));
+       padding:18px 18px 16px; box-shadow:0 2px 0 rgba(40,28,12,.16);}
+  .ledger .tag{position:absolute; top:-1px; left:-1px; background:var(--ink); color:var(--paper);
+       font-size:12px; padding:3px 12px; letter-spacing:4px}
+  .ledger .cols{display:flex; gap:0; margin-top:12px}
+  .ledger .col{flex:1; padding:4px 18px}
+  .ledger .col h4{margin:0 0 6px; font-size:12px; color:var(--ink2); font-weight:normal; letter-spacing:2px}
+  .ledger .amt{font-size:22px; letter-spacing:1px}
+  .ledger .amt .sz{color:var(--ink)} .ledger .amt .arab{color:var(--ink2); font-size:12px; margin-left:6px}
+  .ledger .delta{font-size:12.5px; margin-top:4px; letter-spacing:1px}
+  .delta.up{color:var(--red)} .delta.down{color:var(--green)}
+
+  /* 叙事：书页式，去边框大卡 */
+  .scene{flex:1; padding:2px 2px 0}
+  .scene .era{font-size:12px; color:var(--gold); letter-spacing:6px; margin-bottom:20px;
+       padding-bottom:9px; border-bottom:1px solid var(--rule); display:flex;
+       justify-content:space-between; align-items:center}
+  .scene .era::after{content:"\262F"; color:var(--rule2); font-size:12px}
+  .scene .narr{margin:14px 0}
+  .scene .who{display:inline-block; color:var(--red); font-size:12px; letter-spacing:2px;
+       border:1px solid var(--red); padding:0 7px; margin-right:10px; transform:translateY(-1px)}
+  .scene .mono{color:var(--faint)}
+  .scene .inner{color:var(--ink)}
+
+  /* 选项 / 继续：墨线列表，圈点标记 */
+  .choices{display:flex; flex-direction:column; gap:0; margin-top:24px; border-top:1px solid var(--rule)}
+  .choices button{font-family:inherit; cursor:pointer; text-align:left; position:relative;
+       border:none; border-bottom:1px solid var(--rule); background:transparent; color:var(--ink);
+       padding:15px 16px 15px 40px; font-size:15.5px; line-height:1.65; transition:background .15s,color .15s}
+  .choices button::before{content:"\25CB"; position:absolute; left:15px; top:15px; color:var(--faint); font-size:13px}
+  .choices button:hover{background:var(--ink); color:var(--paper)}
+  .choices button:hover::before{content:"\25CF"; color:var(--paper)}
+  .cont{align-self:flex-end; min-width:auto; border:none; border-bottom:1.5px solid var(--ink);
+       background:transparent; color:var(--ink); padding:8px 6px; margin-top:14px;
+       letter-spacing:3px; font-size:15px; cursor:pointer; font-family:inherit; transition:color .15s,border-color .15s}
+  .cont::before{content:""}
+  .cont:hover{color:var(--red); border-color:var(--red); background:transparent}
+  .scripture-cue{color:var(--gold); font-size:13.5px; margin-top:16px; letter-spacing:1px;
+       border-top:1px dotted var(--rule2); padding-top:10px}
+
+  /* 公文：宣纸 + 双框 + 红印 */
+  .doc{position:relative; border:1px solid var(--ink); background:#fbf6ea; padding:22px 24px; margin-top:16px;
+       line-height:2; box-shadow:inset 0 0 0 4px #fbf6ea, inset 0 0 0 5px var(--rule);
+       white-space:pre-wrap}
+  .doc h3{text-align:center; margin:0 0 14px; font-size:17px; letter-spacing:5px; font-weight:600}
+  .doc .no{text-align:right; color:var(--ink2); font-size:12px; letter-spacing:1px;
+       margin-bottom:12px; border-bottom:1px solid var(--rule); padding-bottom:8px}
+  .doc .seal{position:absolute; right:22px; bottom:18px; width:60px; height:60px; border:2.5px solid var(--red);
+       color:var(--red); display:flex; align-items:center; justify-content:center; text-align:center;
+       font-size:15px; line-height:1.2; letter-spacing:1px; padding:5px; transform:rotate(-7deg); opacity:.8;
+       font-family:"Songti SC",serif; writing-mode:vertical-rl}
+  .annot{color:var(--ink); font-size:14px; margin-top:14px; padding:10px 0 10px 16px;
+       border-left:2px solid var(--red); background:linear-gradient(90deg, rgba(156,43,34,.06), transparent 55%)}
+  .annot::before{content:"\6279"; display:inline-block; color:#fff; background:var(--red); font-size:11px;
+       padding:1px 5px; margin-right:8px; transform:translateY(-2px)}
+
+  /* 体感锁 */
+  .trade{display:flex; gap:12px; margin-top:14px; align-items:center}
+  .sell{font-family:inherit; padding:10px 24px; font-size:16px; border:1.5px solid var(--red);
+       color:var(--red); background:transparent; letter-spacing:2px}
+  .sell.dead{cursor:not-allowed; opacity:.5}
+  .sell.gray{cursor:not-allowed; color:#a99; border-color:#cbb; background:rgba(0,0,0,.03)}
+  .queue{font-size:12.5px; color:var(--ink2)}
+  .shake{animation:sk .3s}
+  @keyframes sk{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+  /* 浮层 */
+  .overlay{position:fixed; inset:0; background:rgba(20,14,8,.5); display:none;
+       justify-content:center; align-items:center; padding:20px; z-index:50}
+  .overlay.on{display:flex}
+  .sheet{background:var(--paper); border:1.5px solid var(--ink); max-width:520px; width:100%;
+       max-height:80vh; overflow:auto; padding:22px 24px; box-shadow:0 12px 40px rgba(20,14,8,.4),inset 0 0 0 4px rgba(247,240,222,.6)}
+  .sheet h3{margin:0 0 14px; letter-spacing:4px; border-bottom:1px solid var(--rule); padding-bottom:10px}
+  .sheet .q{margin:10px 0; padding:10px 12px; border-left:3px solid var(--gold); background:#fbf5e6; line-height:1.9}
+  .sheet .src{color:var(--ink2); font-size:12px; letter-spacing:1px}
+  .sheet .blur{color:#b3a78d; filter:blur(.7px); font-style:italic}
+  .sheet .unlocked{color:var(--ink)}
+  .sheet .annot{margin-top:6px}
+  .sheet .close{margin-top:16px; cursor:pointer; border:1px solid var(--ink); background:var(--ink);
+       color:var(--paper); padding:7px 16px; font-family:inherit; letter-spacing:3px}
+
+  /* 小考 */
+  .exam .opt{cursor:pointer; border:1px solid var(--rule2); padding:12px 14px; margin:8px 0;
+       background:transparent; font-size:14.5px; transition:background .15s,border-color .15s}
+  .exam .opt:hover{background:#e7d8b3; border-color:var(--ink)}
+  .exam .defn{margin-top:16px; border:1px solid var(--gold); background:#fbf3df; padding:14px 16px; display:none}
+  .exam .defn.show{display:block}
+  .exam .term{color:var(--red); font-weight:600; font-size:18px; letter-spacing:1px}
+
+  /* 调试 */
+  #dbg{position:fixed; right:8px; bottom:8px; font-size:11px; background:rgba(40,35,30,.93);
+       color:#e8dcc0; padding:8px 10px; max-width:230px; display:none; z-index:60; line-height:1.6}
+  #dbg b{color:#f0c674}
+  .endcard{text-align:center; padding:30px 24px}
+  .endcard .seal{display:inline-block; border:2.5px solid var(--red); color:var(--red);
+       padding:10px 14px; transform:rotate(-7deg); letter-spacing:4px; margin-top:14px; font-size:18px; opacity:.85}
+
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="board" id="board"></div>
+    <div class="tools">
+      <button onclick="openSheet('scripture')">计然策</button>
+      <button onclick="openSheet('ledgerbook')">烂账</button>
+      <button onclick="toggleDbg()" title="开发者">设</button>
+    </div>
+  </div>
+  <div class="ledger" id="ledger"></div>
+  <div class="scene" id="scene"></div>
+</div>
+
+<div class="overlay" id="overlay"><div class="sheet" id="sheet"></div></div>
+<div id="dbg"></div>
+
+<script>
+/* ============================================================
+   状态
+   ============================================================ */
+const state = {
+  idx: 0,
+  persona: {希望:0, 恐惧:0, 贪婪:0, 后悔:0, 自尊:0},
+  decisions: [],          // 行为流水（终章那本账的本体；竖切只记录，不揭晓）
+  // 序章账本（两栏）
+  dongjia: 800, jiuzhang_liang: 50,
+  // 第一章账本（一栏）
+  cash: 30000, floatPnl: 0,
+  outcome: null,          // 'A'|'B'|'C' from C4
+};
+const CH1_LOSS = {A:11000, B:5000, C:1500};
+const CH1_VOICE = {
+  A:'羞愤："我执过这个局的——怎么会？"',
+  B:'侥幸里发虚："幸好没加……可我当时，是真信我看懂了。"',
+  C:'钱逃了、心没逃："钱是收回来了。可那口‘我熟这路数’的得意，还在。"',
+};
+
+/* 苏州码子（始终配阿拉伯对照；连写 1/2/3 竖横交替） */
+const SZ = ['〇','〡','〢','〣','〤','〥','〦','〧','〨','〩'];
+const HAN = ['〇','一','二','三'];
+function toSZ(n){
+  const s = String(Math.round(n));
+  let out='', prevSmall=false;
+  for(const ch of s){
+    const d=+ch;
+    if(d>=1&&d<=3){
+      out += prevSmall ? HAN[d] : SZ[d];   // 交替：上一位也是1~3则用汉字
+      prevSmall = !prevSmall;
+    }else{ out += SZ[d]; prevSmall=false; }
+  }
+  return out;
+}
+function money(n,unit){ return `<span class="sz">${toSZ(n)}</span><span class="arab">(${n.toLocaleString()}${unit||''})</span>`; }
+
+/* 记录决策（喂性格向量，序章权重×0.5） */
+function record(label, deltas, chapterMul){
+  const m = chapterMul ?? 1;
+  const applied={};
+  for(const k in deltas){ state.persona[k]=(state.persona[k]||0)+deltas[k]*m; applied[k]=deltas[k]*m; }
+  state.decisions.push({行为:label, 加权:applied});
+  renderDbg();
+}
+
+/* ============================================================
+   场景表（序章 S* + 第一章 C*）
+   每个场景: {era,title,board?,ledger:'two'|'one'|null,onEnter?,html,choices?|cont}
+   ============================================================ */
+const scenes = [
+/* —— 序章 —— */
+{ id:'S1', era:'序章 · 米市一胜', ledger:'two',
+  board:{label:'米 · 水牌', price:90, unit:'/斗', dir:''},
+  html:`<p class="narr mono">道光某年，绍兴。旱信初传。</p>
+        <p class="narr"><span class="who">季九章</span><span class="inner">旱则资舟，水则资车——先人所记。米价，要动了。</span></p>`,
+  cont:'细看行情' },
+
+{ id:'S2', era:'序章 · 米市一胜', ledger:'two',
+  board:{label:'米 · 水牌', price:90, unit:'/斗', dir:''},
+  cue:'圣经浮现：「贱取如珠玉」',
+  html:`<p class="narr mono">替东家拿主意的时候到了。</p>`,
+  choices:[
+    {label:'贱取囤米——旧法天经地义，此刻该收', deltas:{自尊:1,希望:1}, mul:.5, label2:'序章S2·贱取囤米'},
+    {label:'再探探行情，稳一稳', deltas:{恐惧:1}, mul:.5, label2:'序章S2·再探行情'},
+  ]},
+
+{ id:'S3', era:'序章 · 米市一胜', ledger:'two',
+  board:{label:'米 · 水牌', price:106, unit:'/斗', dir:'up'},
+  onEnter(){ state.dongjia += 0; },  // 东家以银换米，仓渐实（账面在 ledger 体现）
+  html:`<p class="narr mono">数日，旱情坐实。米价由 90 升至 106。东家的银子换成了满仓的米。</p>
+        <p class="narr"><span class="who">季九章</span><span class="inner">仓渐实。</span><span class="mono"> （他在私账上落了一笔苏州码子）</span></p>`,
+  cont:'继续' },
+
+{ id:'S4', era:'序章 · 米市一胜', ledger:'two',
+  board:{label:'米 · 水牌', price:158, unit:'/斗', dir:'up'},
+  cue:'圣经浮现：「贵上极则反贱，贱下极则反贵」',
+  html:`<p class="narr mono">米价冲顶，158。满城抢米。</p>`,
+  choices:[
+    {label:'此刻贵出——见好就收', deltas:{}, mul:.5, label2:'序章S4·见好就收'},
+    {label:'再等等，还能更高', deltas:{贪婪:2,希望:1}, mul:.5, label2:'序章S4·再等更高'},
+  ]},
+
+{ id:'S5', era:'序章 · 米市一胜', ledger:'two',
+  board:{label:'米 · 水牌', price:158, unit:'/斗', dir:'up'},
+  onEnter(){ state.dongjia = 3200; },  // 东家账暴涨结算；九章账纹丝不动
+  html:`<p class="narr mono">东家于高位尽数出货，账银暴涨。当夜设宴。</p>
+        <p class="narr"><span class="who">马未福</span>（醉）："这点旱情算什么……我做的，是百年之后的大局。"<span class="mono"> 满座皆笑。</span></p>
+        <p class="narr"><span class="who">季九章</span><span class="inner">东家又疯话。盈亏都是他的，我只管账平。</span></p>`,
+  cont:'继续' },
+
+{ id:'S6', era:'序章 · 米市一胜', ledger:'two', dark:true,
+  html:`<p class="narr mono">数日后，东家携财货失踪，只留一册疯话连篇的烂账。</p>
+        <p class="narr mono">季九章追查烂账，途中遭一场变故——</p>
+        <p class="narr" style="text-align:center;font-size:18px;letter-spacing:2px;margin:18px 0">他醒来时，已不在那一年。</p>
+        <hr style="border:none;border-top:1px dashed var(--line)">
+        <p class="narr mono"><b>师爷笔记：</b></p>
+        <p class="narr"><span class="inner">替东家谋，谋得灵。银子是他的，风险是他的。我只管一件——账要平。账平了，我就没错。</span></p>`,
+  cont:'醒来' ,
+  onEnter(){ /* 解锁烂账：首条仍漫漶 */ } },
+
+/* —— 第一章 —— */
+{ id:'KH', era:'第一章 · 执局者', ledger:null,
+  html:`<p class="narr mono">陌生的世道。要谋生，先在“号子”开个户。设“花押”时，季九章郑重编了一道密押。</p>
+        <p class="narr"><span class="who">季九章</span><span class="inner">密本三年一换，尔等的花押……几年一换？</span><span class="mono"> （无人作答）</span></p>`,
+  cont:'入市' },
+
+{ id:'C1', era:'第一章 · 执局者', ledger:'one',
+  board:{label:'某小盘 · 水牌', price:'7.2', unit:'元', dir:''},
+  cue:'圣经浮现：「贱取如珠玉」',
+  html:`<p class="narr mono">房租、考试报名费都将至。号子里这只小票，盘面走法——</p>
+        <p class="narr"><span class="who">季九章</span><span class="inner">……跟当年县城囤米一个路数。有人正在吃货。</span></p>`,
+  cont:'盯住它' },
+
+{ id:'C2', era:'第一章 · 执局者', ledger:'one',
+  board:{label:'某小盘 · 水牌', price:'7.4', unit:'元', dir:'up'},
+  html:`<p class="narr mono">要不要下场？</p>`,
+  choices:[
+    {label:'跟进吃货——我执过这个局，跟着分肉，稳的', deltas:{自尊:3,希望:1}, label2:'C2·跟进吃货'},
+    {label:'只小试一手', deltas:{恐惧:1}, label2:'C2·小试一手'},
+  ]},
+
+{ id:'C3', era:'第一章 · 执局者', ledger:'one',
+  board:{label:'某小盘 · 水牌', price:'9.6', unit:'元', dir:'up'},
+  onEnter(){ state.floatPnl = 6000; },
+  html:`<p class="narr mono">两阶拉升。账上浮盈，肉眼可见地涨。</p>
+        <p class="narr"><span class="who">季九章</span><span class="inner">果然。路数我熟。</span></p>`,
+  cont:'继续' },
+
+{ id:'C4', era:'第一章 · 执局者', ledger:'one',
+  board:{label:'某小盘 · 水牌', price:'12.8', unit:'元', dir:'up'},
+  cue:'圣经又浮：「贱取如珠玉」',
+  html:`<p class="narr mono">价已在高位。关口到了。</p>`,
+  choices:[
+    {label:'加仓满仓——加倍下注', deltas:{贪婪:3,自尊:2,希望:1}, set:'A', label2:'C4·加仓满仓'},
+    {label:'守住不动', deltas:{后悔:2,希望:1}, set:'B', label2:'C4·守住不动'},
+    {label:'减仓落袋', deltas:{后悔:1}, set:'C', label2:'C4·减仓落袋'},
+  ]},
+
+{ id:'C5', era:'第一章 · 接盘者', ledger:'one', sellLock:true,
+  board:{label:'某小盘 · 水牌', price:'跌停', unit:'', dir:'down'},
+  onEnter(){
+    const loss = CH1_LOSS[state.outcome]||0;
+    state.cash = 30000 - loss; state.floatPnl = 0;
+  },
+  html:`<p class="narr mono">庄家出货。连续跌停。</p>`,
+  // 文案在 render 里按 outcome 补心声
+  cont:'读那封函' },
+
+{ id:'C6', era:'第一章 · 接盘者', ledger:'one', doc:'inquiry',
+  html:`<p class="narr mono">持仓的票，收到了交易所的一纸问询函。</p>`,
+  cont:'数月后……' },
+
+{ id:'C7', era:'第一章 · 接盘者', ledger:'one', doc:'penalty',
+  html:`<p class="narr mono">数月后，一纸公告贴出。庄家落网。</p>
+        <p class="narr"><span class="inner">罚单是别人的，亏的钱是自己的。监管抓了坏人——没人赔你。</span></p>`,
+  cont:'合上账' },
+
+{ id:'C8', era:'第一章 · 接盘者', ledger:'one',
+  html:`<p class="narr mono"><b>师爷笔记：</b></p>
+        <p class="narr"><span class="inner">这笔账，我来回算了三遍。</span></p>
+        <p class="narr"><span class="inner">盘面没看错，路数没看错。账，不平。</span></p>
+        <p class="narr"><span class="inner">经手三十年，头一笔平不了的账。</span></p>
+        <p class="narr mono">（罚单上的化名——山阴某氏。绍兴的旧地名。）</p>
+        <hr style="border:none;border-top:1px dashed var(--line)">
+        <p class="narr mono">烂账，自己解开了一条：</p>
+        <p class="narr"><span class="unlocked">「囤股若囤米，择小邑薄仓者。」</span></p>`,
+  onEnter(){ unlock1=true; },
+  cont:'去考场' },
+
+{ id:'C9', era:'第一章 · 章末小考', ledger:null, exam:true,
+  html:`<p class="narr mono">从业资格考试。只考一题——你方才亲眼所见。</p>` },
+
+{ id:'END', era:'竖切 · 完', ledger:null,
+  html:`<div class="endcard">
+        <p class="mono">序章 + 第一章 · 到此。</p>
+        <p class="mono" style="font-size:13px">（终章是保留地：你这一路的“账”已在悄悄记下，<br>但它要等整局走完，由你自己翻开。）</p>
+        <div class="seal">账 未 平</div>
+        <p class="mono" style="font-size:12px;margin-top:20px">点 ⚙ 可看开发者：你这次走出的性格向量</p>
+        </div>`,
+  cont:null },
+];
+
+/* ============================================================
+   圣经 / 烂账 内容
+   ============================================================ */
+let unlock1=false;
+const scripture = [
+  {q:'旱则资舟，水则资车，物之理也。', src:'计然 ·《史记·货殖列传》', note:'先人所记'},
+  {q:'贵出如粪土，贱取如珠玉。', src:'计然 ·《史记·货殖列传》', note:'九章自录'},
+  {q:'贵上极则反贱，贱下极则反贵。', src:'计然 ·《史记·货殖列传》', note:'先人所记'},
+  {q:'人弃我取，人取我与。', src:'白圭 ·《史记·货殖列传》', note:'九章自录 · 半灵半害，慎之'},
+];
+
+/* ============================================================
+   渲染
+   ============================================================ */
+function cur(){ return scenes[state.idx]; }
+
+function renderBoard(s){
+  const el=document.getElementById('board');
+  if(!s.board){ el.style.visibility='hidden'; return; }
+  el.style.visibility='visible';
+  const b=s.board; const isNum=typeof b.price==='number';
+  el.innerHTML=`<span class="tag">${b.label}</span>
+    <div class="row">
+      <span class="price ${b.dir}">${b.price}${b.unit}</span>
+      ${isNum?`<span class="sz">${toSZ(b.price)}</span><span class="arab"> (${b.price})</span>`:''}
+    </div>`;
+}
+
+function renderLedger(s){
+  const el=document.getElementById('ledger');
+  if(!s.ledger){ el.style.display='none'; return; }
+  el.style.display='block';
+  if(s.ledger==='two'){
+    el.innerHTML=`<span class="tag">账本</span>
+      <div class="cols">
+        <div class="col"><h4>东家账</h4><div class="amt">${money(state.dongjia,'两')}</div>
+          ${state.dongjia>800?'<div class="delta up">▲ 暴涨</div>':''}</div>
+        <div class="col"><h4>九章账（棺材本）</h4><div class="amt">${money(state.jiuzhang_liang,'两')}</div>
+          <div class="delta">纹丝不动</div></div>
+      </div>`;
+  }else if(s.ledger==='one'){
+    const lossShown = state.outcome && cur().id>='C5';
+    el.innerHTML=`<span class="tag">账本 · 九章账</span>
+      <div class="cols"><div class="col" style="flex:2">
+        <h4>本金（这一回，风险在你自己身上）</h4>
+        <div class="amt">${money(state.cash,'元')}</div>
+        ${state.floatPnl>0?`<div class="delta up">▲ 浮盈 +${state.floatPnl.toLocaleString()}</div>`:''}
+        ${(lossShown)?`<div class="delta down">▼ 已亏 ${(30000-state.cash).toLocaleString()}</div>`:''}
+      </div></div>`;
+  }
+}
+
+function renderScene(s){
+  const el=document.getElementById('scene');
+  let h=`<div class="era">${s.era}</div>`+s.html;
+
+  // C5：按 outcome 补心声 + 体感锁
+  if(s.sellLock){
+    h+=`<p class="narr">${CH1_VOICE[state.outcome]||''}</p>`;
+    h+=`<div class="trade">
+          <button class="sell dead" onclick="deadSell(this)">卖出</button>
+          <span class="queue">（你前面还排着 1,284,500 股卖单……按不动）</span>
+        </div>
+        <div class="trade"><button class="sell gray">次日卖出</button>
+          <span class="queue">T+1：今日买入，次日方可卖出——入口已灰</span></div>`;
+  }
+  // 公文
+  if(s.doc==='inquiry'){
+    h+=`<div class="doc"><div class="no">〔交易所〕公司管理部　问询函第 037 号</div>
+<h3>关于股票交易异常波动的问询函</h3>你公司股票近 10 个交易日内 7 次涨停，价格振幅显著偏离同期市场及行业指数。现问询如下：
+一、请核实你公司经营是否发生重大变化；
+二、请自查控股股东、实际控制人近期是否买卖你公司股票，有无应披露而未披露之重大信息；
+三、请就股票交易是否存在被他人操纵之情形作出说明。
+请于 3 个交易日内书面回复并履行信息披露义务。<div class="seal">上交所</div></div>
+    <div class="annot">季九章批注：「此函三问——先问根本，再问内线，终问有人做局。问得有章法，可入幕。」<br>读到第三问，停笔：「……这票，完了。」<br><br>「这世道防做局，竟用一纸函、一道停板——比衙门的板子，快。」</div>`;
+  }
+  if(s.doc==='penalty'){
+    h+=`<div class="doc"><div class="no">中国证券监督管理委员会　行政处罚决定书</div>
+当事人：<b>山阴某氏</b>。
+经查，当事人控制使用十六个证券账户，集中资金优势、持股优势，以连续交易、大额封涨停及账户间对倒等方式，影响相关股票交易价格与交易量，于高位集中卖出获利。
+上述行为构成操纵证券市场。决定：没收违法所得，并处等额罚款。<div class="seal">证监会</div></div>`;
+  }
+  // 小考
+  if(s.exam){
+    h+=`<div class="exam">
+      <p>下列哪种行为，构成操纵市场？</p>
+      <div class="opt" onclick="examPick(this,false)">连续涨停时追进，想分一杯羹</div>
+      <div class="opt" onclick="examPick(this,false)">看到便宜就买入</div>
+      <div class="opt" onclick="examPick(this,true)">控制多个账户、对倒拉抬、高位出货</div>
+      <div class="defn" id="defn">
+        <p>答对了。而考卷一角，浮出一个词的定义——</p>
+        <p><span class="term">能力错觉</span>：把“看懂某件事”，误当成“能从中获利”。</p>
+        <p class="mono" style="font-size:13px">（你想起方才自己说的那句“我执过这个局”。）</p>
+        <button class="close" onclick="next()">合上考卷</button>
+      </div></div>`;
+  }
+
+  // 圣经提示
+  if(s.cue) h+=`<div class="scripture-cue">〔计然策〕${s.cue}　·　右上可查</div>`;
+
+  // 选项 / 继续
+  if(s.choices){
+    h+=`<div class="choices">`;
+    s.choices.forEach((c,i)=> h+=`<button onclick="choose(${i})">${c.label}</button>`);
+    h+=`</div>`;
+  }else if(s.cont){
+    h+=`<div class="choices"><button class="cont" onclick="next()">${s.cont} ›</button></div>`;
+  }
+  el.innerHTML=h;
+  if(s.dark) el.style.background='#e7dcc2'; else el.style.background='#fbf5e6';
+}
+
+function render(){
+  const s=cur();
+  if(s.onEnter) s.onEnter();
+  renderBoard(s); renderLedger(s); renderScene(s); renderDbg();
+  window.scrollTo(0,0);
+}
+
+/* ============================================================
+   交互
+   ============================================================ */
+function next(){ if(state.idx<scenes.length-1){ state.idx++; render(); } }
+function choose(i){
+  const c=cur().choices[i];
+  record(c.label2||c.label, c.deltas||{}, c.mul);
+  if(c.set) state.outcome=c.set;
+  next();
+}
+function deadSell(btn){ btn.classList.add('shake'); setTimeout(()=>btn.classList.remove('shake'),300); }
+function examPick(el,ok){
+  if(ok){ document.getElementById('defn').classList.add('show');
+    record('章末考·答对(操纵市场定义)', {}, 1);
+    el.style.borderColor='var(--green)'; el.style.background='#e6f0e6';
+  }else{ el.style.borderColor='var(--red)'; el.style.background='#f6e6e6';
+    el.textContent += '　——不是这个。'; }
+}
+
+/* 浮层：圣经 / 烂账 */
+function openSheet(which){
+  const sh=document.getElementById('sheet');
+  if(which==='scripture'){
+    sh.innerHTML=`<h3>计然策</h3>`+scripture.map(s=>
+      `<div class="q">「${s.q}」<div class="src">— ${s.src}　·　${s.note}</div></div>`).join('')
+      +`<button class="close" onclick="closeSheet()">合上</button>`;
+  }else{
+    sh.innerHTML=`<h3>东家的烂账</h3>`
+      +(unlock1
+        ? `<div class="q unlocked">「囤股若囤米，择小邑薄仓者。」<div class="annot">九章批注：东家……早就在干这个。</div></div>`
+        : `<div class="q blur">「囤▓若囤▓，择小▓薄▓者……」（漫漶不可辨）</div>`)
+      +`<div class="q blur">「▓▓▓▓▓▓……」（未解）</div>`
+      +`<button class="close" onclick="closeSheet()">合上</button>`;
+  }
+  document.getElementById('overlay').classList.add('on');
+}
+function closeSheet(){ document.getElementById('overlay').classList.remove('on'); }
+document.getElementById('overlay').addEventListener('click',e=>{ if(e.target.id==='overlay') closeSheet(); });
+
+/* 开发者调试：性格向量 + 行为流水（竖切只看，不入游戏） */
+let dbgOn=false;
+function toggleDbg(){ dbgOn=!dbgOn; document.getElementById('dbg').style.display=dbgOn?'block':'none'; renderDbg(); }
+function renderDbg(){
+  if(!dbgOn) return;
+  const p=state.persona;
+  const sum=Object.values(p).reduce((a,b)=>a+b,0)||1;
+  const rows=Object.entries(p).map(([k,v])=>`${k}: ${v.toFixed(1)} (${Math.round(v/sum*100)}%)`).join('<br>');
+  document.getElementById('dbg').innerHTML=
+    `<b>性格向量（静默）</b><br>${rows}<br><b>结局</b>:${state.outcome||'-'}　本金:${state.cash}<br>
+     <b>决策数</b>:${state.decisions.length}`;
+}
+
+/* 苏州码子字形兜底探测：首选CJK字体栈若渲染不出真字形（与通用baseline同宽），
+   则隐藏码子、只留阿拉伯——杜绝乱码方块 / 丑回退字形 */
+(function(){
+  try{
+    const ctx=document.createElement('canvas').getContext('2d');
+    const probe='〩〥〨';
+    ctx.font='32px monospace';
+    const wBase=ctx.measureText(probe).width;
+    ctx.font='32px "PingFang SC","Heiti SC","Hiragino Sans GB","Noto Sans CJK SC","Source Han Sans SC","Microsoft YaHei",sans-serif';
+    const wGood=ctx.measureText(probe).width;
+    if(Math.abs(wGood-wBase)<1) document.documentElement.classList.add('no-sz');
+  }catch(e){ document.documentElement.classList.add('no-sz'); }
+})();
+
+render();
+</script>
+</body>
+</html>

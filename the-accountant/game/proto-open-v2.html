@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>账房先生 · 开场样片 v2（代入感）</title>
+<style>
+  :root{--paper:#f3ead6;--ink:#28231e;--ink2:#6f6149;--faint:#9c8a6a;
+        --red:#9c2b22;--green:#3a6b40;--gold:#8a6d3b;--rule:#cdbd9c;--band:#efe4c6;}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:var(--paper);color:var(--ink);
+       font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+       font-size:16.5px;line-height:1.9;display:flex;justify-content:center}
+  #app{width:100%;max-width:560px;min-height:100%;padding:24px 22px 56px;display:flex;flex-direction:column;gap:16px}
+
+  .howto{border:1.5px solid var(--ink);background:#fbf5e6;padding:20px}
+  .howto h1{font-size:20px;letter-spacing:2px;margin:0 0 14px}
+  .howto p{margin:8px 0}
+  .howto .big{font-size:17px}
+
+  .status{display:flex;gap:10px}
+  .card{flex:1;border:1px solid var(--rule);background:var(--band);padding:10px 12px}
+  .card .k{font-size:12px;color:var(--ink2);letter-spacing:1px}
+  .card .v{font-size:20px;font-weight:600;margin-top:2px}
+  .card .sub{font-size:11.5px;color:var(--faint);margin-top:2px}
+  .up{color:var(--red)} .down{color:var(--green)}
+
+  .scene{padding:2px}
+  .scene .where{font-size:12px;color:var(--gold);letter-spacing:3px;margin-bottom:10px}
+  .scene p{margin:11px 0}
+  .narr{color:var(--ink2)}
+  .say{color:var(--ink)} .say b{color:var(--red);font-weight:600;margin-right:6px}
+  .beat{color:var(--ink);font-style:italic;color:var(--ink2)}
+  .stake{border-left:3px solid var(--red);padding:6px 0 6px 14px;background:linear-gradient(90deg,rgba(156,43,34,.07),transparent 60%);margin:12px 0}
+
+  .decide{border:1.5px solid var(--gold);background:#fbf3df;padding:14px 16px;margin-top:6px}
+  .decide .q{font-size:16.5px;margin:0 0 12px}
+  .decide .q b{color:var(--gold)}
+  .opt{display:block;width:100%;text-align:left;font-family:inherit;font-size:15.5px;cursor:pointer;
+       border:1px solid var(--ink);background:transparent;color:var(--ink);padding:12px 14px;margin:8px 0;line-height:1.5;transition:.15s}
+  .opt:hover{background:var(--ink);color:var(--paper)}
+  .opt small{display:block;color:var(--faint);font-size:12.5px;margin-top:3px}
+  .opt:hover small{color:#d8cba8}
+
+  .result{border:1.5px solid var(--ink);padding:16px;margin-top:6px;background:#fbf5e6}
+  .result .delta{font-size:20px;font-weight:700;letter-spacing:.5px}
+  .result .why{margin-top:8px;color:var(--ink2)}
+  .result .react{margin-top:10px}
+
+  .cont{align-self:flex-end;font-family:inherit;font-size:15px;letter-spacing:2px;cursor:pointer;
+        border:none;border-bottom:1.5px solid var(--ink);background:transparent;color:var(--ink);padding:8px 4px;margin-top:6px}
+  .cont:hover{color:var(--red);border-color:var(--red)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const app=document.getElementById('app');
+let step=0, choice=null;
+
+function status(rice,dir,dong,name){
+  return `<div class="status">
+    <div class="card"><div class="k">米价（行情牌）</div>
+      <div class="v ${dir}">${rice} 文/斗</div><div class="sub">价一动，东家的家底跟着动</div></div>
+    <div class="card"><div class="k">押上的</div>
+      <div class="v">${name}</div><div class="sub">${dong}</div></div>
+  </div>`;
+}
+
+const screens = [
+  // 0 · 怎么玩 + 你是谁
+  ()=>`<div class="howto">
+    <h1>账房先生 · 你替他下每一个决定</h1>
+    <p class="big">你是<b>季九章</b>，绍兴账房先生。东家出钱做生意，你替他出主意。</p>
+    <p>买、卖、还是等——每一步，<b>你来按</b>。</p>
+    <p class="big">钱是东家的。可看得准不准，是<b>你的招牌、你的饭碗</b>。</p>
+    </div>
+    <button class="cont" onclick="go(1)">开始 ›</button>`,
+
+  // 1 · 处境：场景 + 切肤赌注 + 有脉搏的人
+  ()=>status('90','','三年本钱 · 800两','东家押你这张嘴')+
+    `<div class="scene">
+      <div class="where">清朝 · 绍兴 · 米市</div>
+      <p class="narr">米市闹哄哄，可没人敢动手。旱情的风声刚起，是真是假，全城都在等一个人先开口。</p>
+      <p class="say"><b>东家</b>九章，三年的本钱，我押你这张嘴。你说囤，我就囤。</p>
+      <div class="stake">你不出一文钱。<b>可你要是看走眼</b>——东家赔的是三年，你赔的是这身"懂行"的名声，和这碗饭。</div>
+      <p class="say"><b>季九章</b>天旱，米就贵。这道理我吃了三十年——错不了。</p>
+      <p class="beat">话说得满。手心，却悄悄沁了汗。</p>
+    </div>
+    <button class="cont" onclick="go(2)">全城等你一句话 ›</button>`,
+
+  // 2 · 决定：张力顶在选择上
+  ()=>status('90','','三年本钱 · 800两','东家押你这张嘴')+
+    `<div class="scene"><div class="where">清朝 · 绍兴 · 米市 · 全场静等</div></div>
+     <div class="decide">
+       <p class="q">话已出口，全城都看着你。这 800 两，<b>怎么下手？</b></p>
+       <button class="opt" onclick="pick('buy')">现在就囤——把话坐实
+         <small>赌旱情是真的、米会涨。赌对了你封神，赌错了名声饭碗一起砸</small></button>
+       <button class="opt" onclick="pick('wait')">先稳一稳，再看看
+         <small>不丢人，可机会是风口上的——犹豫一下，可能就没了</small></button>
+     </div>`,
+
+  // 3 · 结果：落在情绪和人身上，不只数字
+  ()=>{
+    if(choice==='buy'){
+      return status('106','up','约 1,060两 ↑','你赌对了')+
+      `<div class="result">
+        <div class="delta up">米价 90 → 106　东家家底 800两 → 约 1,060两</div>
+        <div class="why">没几日，旱情坐实，米价真往上蹿。你押的方向，对了。</div>
+        <p class="react say"><b>东家</b>好你个九章！——刚才还看你笑话的，这会儿全来打听门道。</p>
+        <p class="beat">"我说什么来着。"手心那点汗，这才敢擦。</p>
+       </div>
+       <button class="cont" onclick="go(4)">继续 ›</button>`;
+    }else{
+      return status('106','up','800两（没动）','你按住了手')+
+      `<div class="result">
+        <div class="delta">米价 90 → 106　东家家底 800两（一两没动）</div>
+        <div class="why">米真涨了。你看准了方向，却没敢下手——这一程，眼睁睁从指缝里过去了。</div>
+        <p class="react say"><b>东家</b>（没说什么。可那点没说出口的失望，你看得见。）</p>
+        <p class="beat">"看得准，没敢赌。"比赔钱更难受的，是这个。</p>
+       </div>
+       <button class="cont" onclick="go(4)">继续 ›</button>`;
+    }
+  },
+
+  // 4 · 收口：把序章的赌注接到第一章的反转
+  ()=>`<div class="howto">
+    <p class="big">这一圈，你押上的<b>不是钱</b>——是"我看得准"这件事。</p>
+    <p class="narr">看行情 → 你下手 → 家底变了 → 你认了那口滋味（得意，或是后悔）。</p>
+    <p class="narr" style="margin-top:14px">往后，季九章会从这清朝米市，<b>跌进现代股市</b>。</p>
+    <p class="narr">同一套"便宜就买、赚了再等等"的老直觉——只是那一回，<b>押上的连钱都是你自己的了。</b></p>
+    <p class="say" style="margin-top:14px;color:var(--faint)">（演示到此。这版想试的是：你有没有更"在场"一点。）</p>
+    </div>`,
+];
+
+function go(n){step=n;render();}
+function pick(c){choice=c;go(3);}
+function render(){app.innerHTML=screens[step]();window.scrollTo(0,0);}
+render();
+</script>
+</body>
+</html>

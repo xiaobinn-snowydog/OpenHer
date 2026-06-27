@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>账房先生 · 开场样片 v3（克制写实）</title>
+<style>
+  :root{--paper:#f3ead6;--ink:#28231e;--ink2:#6f6149;--faint:#9c8a6a;
+        --red:#9c2b22;--green:#3a6b40;--gold:#8a6d3b;--rule:#cdbd9c;--band:#efe4c6;}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:var(--paper);color:var(--ink);
+       font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+       font-size:16.5px;line-height:1.95;display:flex;justify-content:center}
+  #app{width:100%;max-width:560px;min-height:100%;padding:24px 22px 56px;display:flex;flex-direction:column;gap:16px}
+
+  .howto{border:1px solid var(--rule);background:#fbf5e6;padding:20px}
+  .howto h1{font-size:19px;letter-spacing:2px;margin:0 0 14px;font-weight:600}
+  .howto p{margin:7px 0}
+
+  .status{display:flex;gap:10px}
+  .card{flex:1;border:1px solid var(--rule);background:var(--band);padding:10px 12px}
+  .card .k{font-size:12px;color:var(--ink2);letter-spacing:1px}
+  .card .v{font-size:20px;font-weight:600;margin-top:2px}
+  .card .sub{font-size:11.5px;color:var(--faint);margin-top:2px}
+  .up{color:var(--red)} .down{color:var(--green)}
+
+  .scene{padding:2px}
+  .scene .where{font-size:12px;color:var(--gold);letter-spacing:3px;margin-bottom:12px}
+  .scene p{margin:11px 0}
+  .narr{color:var(--ink)}
+  .say{color:var(--ink2)}
+
+  .decide{border:1px solid var(--gold);background:#fbf3df;padding:14px 16px;margin-top:6px}
+  .decide .q{font-size:16px;margin:0 0 12px;color:var(--ink)}
+  .opt{display:block;width:100%;text-align:left;font-family:inherit;font-size:15.5px;cursor:pointer;
+       border:1px solid var(--ink);background:transparent;color:var(--ink);padding:12px 14px;margin:8px 0;line-height:1.5;transition:.15s}
+  .opt:hover{background:var(--ink);color:var(--paper)}
+  .opt small{display:block;color:var(--faint);font-size:12.5px;margin-top:3px}
+  .opt:hover small{color:#d8cba8}
+
+  .result{border:1px solid var(--ink);padding:16px;margin-top:6px;background:#fbf5e6}
+  .result .delta{font-size:18px;font-weight:600;letter-spacing:.5px}
+  .result .prose{margin-top:10px;color:var(--ink);line-height:1.95}
+
+  .cont{align-self:flex-end;font-family:inherit;font-size:15px;letter-spacing:2px;cursor:pointer;
+        border:none;border-bottom:1px solid var(--ink);background:transparent;color:var(--ink);padding:8px 4px;margin-top:6px}
+  .cont:hover{color:var(--red);border-color:var(--red)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const app=document.getElementById('app');
+let step=0, choice=null;
+
+function status(rice,dir,dong){
+  return `<div class="status">
+    <div class="card"><div class="k">米价</div>
+      <div class="v ${dir}">米 ${rice} 文/斗</div></div>
+    <div class="card"><div class="k">这局的钱</div>
+      <div class="v">东家 ${dong}</div>
+      <div class="sub">九章 50两 · 不出钱，出主意</div></div>
+  </div>`;
+}
+
+const screens = [
+  // 0 · 怎么玩
+  ()=>`<div class="howto">
+    <h1>账房先生</h1>
+    <p>你替季九章做主。他是绍兴的账房先生，替东家管钱、出主意。</p>
+    <p>买、卖、还是等，每一步你来定。</p>
+    <p>钱是东家的。看得准不准，是九章自己的。</p>
+    </div>
+    <button class="cont" onclick="go(1)">开始 ›</button>`,
+
+  // 1 · 处境
+  ()=>status('90','','800两')+
+    `<div class="scene">
+      <div class="where">清朝 · 绍兴 · 米市</div>
+      <p class="narr">旱信传到绍兴这天，米市照常喧闹，没有一家动手。</p>
+      <p class="narr">东家把三年的本钱搁在桌上，推过来。</p>
+      <p class="say">“你说囤，就囤。”</p>
+      <p class="narr">九章看着那叠银票，没有立刻去接。</p>
+    </div>
+    <button class="cont" onclick="go(2)">该拿主意了 ›</button>`,
+
+  // 2 · 决定
+  ()=>status('90','','800两')+
+    `<div class="scene"><div class="where">清朝 · 绍兴 · 米市</div>
+       <p class="narr">旱信还只是风声。米价没动。</p></div>
+     <div class="decide">
+       <p class="q">囤，还是不囤？</p>
+       <button class="opt" onclick="pick('buy')">囤——把三年本钱换成米
+         <small>赌旱情是真的</small></button>
+       <button class="opt" onclick="pick('wait')">再等等
+         <small>等风声坐实，价也就起来了</small></button>
+     </div>`,
+
+  // 3 · 结果（克制写实：动作说话，不点情绪）
+  ()=>{
+    if(choice==='buy'){
+      return status('106','up','约 1,060两')+
+      `<div class="result">
+        <div class="delta up">米价 90 → 106　东家家底 800两 → 约 1,060两</div>
+        <div class="prose">第三日，米价过了百。<br>
+          东家没说话，把账册往他面前推了推。<br>
+          九章提笔记下数目。笔尖很稳，落得比平日还轻些。</div>
+       </div>
+       <button class="cont" onclick="go(4)">继续 ›</button>`;
+    }else{
+      return status('106','up','800两（没动）')+
+      `<div class="result">
+        <div class="delta">米价 90 → 106　东家家底 800两（没动）</div>
+        <div class="prose">第三日，米价过了百。九章没囤。<br>
+          东家没提这事。<br>
+          账册上那一栏空着。九章看了一会儿，翻了过去。</div>
+       </div>
+       <button class="cont" onclick="go(4)">继续 ›</button>`;
+    }
+  },
+
+  // 4 · 收口
+  ()=>`<div class="howto">
+    <p>看行情，下手，看账。一来一回，就是这游戏的一圈。</p>
+    <p>日后九章会从这米市，跌进现代的股市。</p>
+    <p>还是这套老法子。只是那时候，押上的，就不止是东家的钱了。</p>
+    <p style="color:var(--faint);margin-top:14px">（演示到此。这版只换了调子——克制写实。你看顺不顺眼。）</p>
+    </div>`,
+];
+
+function go(n){step=n;render();}
+function pick(c){choice=c;go(3);}
+function render(){app.innerHTML=screens[step]();window.scrollTo(0,0);}
+render();
+</script>
+</body>
+</html>

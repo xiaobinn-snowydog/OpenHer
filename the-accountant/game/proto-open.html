@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>账房先生 · 开场样片（新"怎么玩"模式）</title>
+<style>
+  :root{--paper:#f3ead6;--ink:#28231e;--ink2:#6f6149;--faint:#9c8a6a;
+        --red:#9c2b22;--green:#3a6b40;--gold:#8a6d3b;--rule:#cdbd9c;--band:#efe4c6;}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:var(--paper);color:var(--ink);
+       font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+       font-size:16.5px;line-height:1.85;display:flex;justify-content:center}
+  #app{width:100%;max-width:560px;min-height:100%;padding:24px 22px 56px;display:flex;flex-direction:column;gap:16px}
+
+  /* 大白话框：玩家随时知道自己在干嘛 */
+  .howto{border:1.5px solid var(--ink);background:#fbf5e6;padding:20px 20px;line-height:2}
+  .howto h1{font-size:20px;letter-spacing:2px;margin:0 0 14px}
+  .howto p{margin:8px 0}
+  .howto .big{font-size:17px}
+
+  /* 状态条：有多少钱 / 现在什么行情 —— 永远显示 */
+  .status{display:flex;gap:10px}
+  .card{flex:1;border:1px solid var(--rule);background:var(--band);padding:10px 12px}
+  .card .k{font-size:12px;color:var(--ink2);letter-spacing:1px}
+  .card .v{font-size:20px;font-weight:600;margin-top:2px}
+  .card .v .arab{font-size:13px;color:var(--ink2);font-weight:400;margin-left:4px}
+  .card .sub{font-size:11.5px;color:var(--faint);margin-top:2px}
+  .up{color:var(--red)} .down{color:var(--green)}
+
+  .scene{padding:2px}
+  .scene .where{font-size:12px;color:var(--gold);letter-spacing:3px;margin-bottom:10px}
+  .scene p{margin:10px 0}
+  .say{color:var(--ink)} .say b{color:var(--red);font-weight:600;margin-right:6px}
+  .narr{color:var(--ink2)}
+
+  /* 决定块：一眼看出"这是你的选择，它有分量" */
+  .decide{border:1.5px solid var(--gold);background:#fbf3df;padding:14px 16px;margin-top:8px}
+  .decide .q{font-size:16.5px;margin:0 0 12px}
+  .decide .q b{color:var(--gold)}
+  .opt{display:block;width:100%;text-align:left;font-family:inherit;font-size:15.5px;cursor:pointer;
+       border:1px solid var(--ink);background:transparent;color:var(--ink);padding:12px 14px;margin:8px 0;line-height:1.5;transition:.15s}
+  .opt:hover{background:var(--ink);color:var(--paper)}
+  .opt small{display:block;color:var(--faint);font-size:12.5px;margin-top:3px}
+  .opt:hover small{color:#d8cba8}
+
+  /* 结果块：钱怎么变了 + 为什么，醒目 */
+  .result{border:1.5px solid var(--ink);padding:16px;margin-top:8px;background:#fbf5e6}
+  .result .delta{font-size:22px;font-weight:700;letter-spacing:1px}
+  .result .why{margin-top:8px;color:var(--ink2)}
+
+  .cont{align-self:flex-end;font-family:inherit;font-size:15px;letter-spacing:2px;cursor:pointer;
+        border:none;border-bottom:1.5px solid var(--ink);background:transparent;color:var(--ink);padding:8px 4px;margin-top:6px}
+  .cont:hover{color:var(--red);border-color:var(--red)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const app=document.getElementById('app');
+let step=0, choice=null;
+
+function statusBar(rice, riceDir, dong, you){
+  return `<div class="status">
+    <div class="card"><div class="k">行情牌（当时的价目牌）</div>
+      <div class="v ${riceDir}">米 ${rice} 文/斗</div>
+      <div class="sub">价在动，钱跟着动</div></div>
+    <div class="card"><div class="k">这局谁的钱</div>
+      <div class="v">东家 ${dong}两</div>
+      <div class="sub">你（季九章）${you}两 · 出主意不出钱</div></div>
+  </div>`;
+}
+
+const screens = [
+  // 0 · 怎么玩
+  ()=>`<div class="howto">
+    <h1>账房先生 · 你来替他做"钱"的决定</h1>
+    <p class="big">这是一个做<b>钱的决定</b>的小游戏。</p>
+    <p>你替<b>季九章</b>——一个清朝账房先生——按下每一个 <b>买 / 卖 / 等</b>。</p>
+    <p>他懂旧时代的规矩，可这是新世道。</p>
+    <p class="big">你要做的只有一件：<b>看他的账，怎么一步步变。</b></p>
+    </div>
+    <button class="cont" onclick="go(1)">开始 ›</button>`,
+
+  // 1 · 处境（状态条永远在）
+  ()=>statusBar('90','', '800', '50')+
+    `<div class="scene">
+      <div class="where">清朝 · 绍兴 · 米市</div>
+      <p class="narr">东家出钱做米粮生意，你替他管账、出主意——赚了赔了都算东家的。</p>
+      <p class="narr">这天，旱情的消息传来。天一旱，米就缺，米价要往上走。</p>
+      <p class="say"><b>季九章</b>米价，要动了。</p>
+    </div>
+    <button class="cont" onclick="go(2)">该你拿主意了 ›</button>`,
+
+  // 2 · 决定（一眼看出是你的选择）
+  ()=>statusBar('90','', '800', '50')+
+    `<div class="scene"><div class="where">清朝 · 绍兴 · 米市</div></div>
+     <div class="decide">
+       <p class="q">天要旱了。你替东家<b>用这 800 两</b>，怎么办？</p>
+       <button class="opt" onclick="pick('buy')">现在就囤米
+         <small>趁便宜大量买进，赌米价会涨</small></button>
+       <button class="opt" onclick="pick('wait')">再等等看
+         <small>先不动钱，看清楚再说</small></button>
+     </div>`,
+
+  // 3 · 结果（钱怎么变 + 为什么）
+  ()=>{
+    if(choice==='buy'){
+      return statusBar('106','up','1060','50')+
+      `<div class="result">
+        <div class="delta up">米价 90 → 106　↑　东家的账：800两 → 约 1,060两</div>
+        <div class="why">你赌对了方向。旱情来了、米真涨了，东家手里囤的米跟着值钱。</div>
+       </div>
+       <div class="scene"><p class="say"><b>季九章</b>仓渐实。</p></div>
+       <button class="cont" onclick="go(4)">继续 ›</button>`;
+    }else{
+      return statusBar('106','up','800','50')+
+      `<div class="result">
+        <div class="delta">米价 90 → 106　↑　东家的账：800两（没动）</div>
+        <div class="why">米真涨了——可你没买，这一程没赚到。钱是稳的，机会过去了。</div>
+       </div>
+       <div class="scene"><p class="say"><b>季九章</b>看准了，却没敢下手。</p></div>
+       <button class="cont" onclick="go(4)">继续 ›</button>`;
+    }
+  },
+
+  // 4 · 点明这就是循环
+  ()=>`<div class="howto">
+    <p class="big">你刚走完这游戏的<b>一圈</b>：</p>
+    <p>① 看行情　→　② 你做决定　→　③ 钱变了　→　④ 想明白为什么</p>
+    <p class="narr" style="margin-top:14px">后面，季九章会从这个清朝米市，<b>跌进现代股市</b>。</p>
+    <p class="narr">同一套"便宜就买、赚了再等等"的旧直觉——这回，结局不一样。</p>
+    <p class="say" style="margin-top:14px;color:var(--faint)">（演示到此。这只是开场一圈的新版手感，想确认你"知道自己在玩什么"。）</p>
+    </div>`,
+];
+
+function go(n){ step=n; render(); }
+function pick(c){ choice=c; go(3); }
+function render(){ app.innerHTML = screens[step](); window.scrollTo(0,0); }
+render();
+</script>
+</body>
+</html>

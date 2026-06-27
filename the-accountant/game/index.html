@@ -224,6 +224,25 @@ function record(label, deltas, chapterMul){
    每个场景: {era,title,board?,ledger:'two'|'one'|null,onEnter?,html,choices?|cont}
    ============================================================ */
 const scenes = [
+/* —— 序幕 · 过门（立身 + 随身两样）—— */
+{ id:'P1', era:'序幕 · 绍兴', ledger:null,
+  html:`<p class="narr mono">道光年间，绍兴。</p>
+        <p class="narr"><span class="who">季九章</span><span class="inner">我季九章，钱谷师爷。佐东家理账谋划三十年——出主意是我的本分，银子和风险，向来是东家的。</span></p>
+        <p class="narr"><span class="inner">账必平，是我的命。</span></p>`,
+  cont:'继续' },
+
+{ id:'P2', era:'序幕 · 绍兴', ledger:null,
+  html:`<p class="narr mono">东家马未福，做米粮营生。满城都说他疯——满口“百年之后的大局”，还记着一本谁也看不懂的账。</p>
+        <p class="narr"><span class="who">季九章</span><span class="inner">疯归疯，他的银子是真的。我只管他的账平不平，旁的不论。</span></p>`,
+  cont:'继续' },
+
+{ id:'P3', era:'序幕 · 绍兴', ledger:'two',
+  cue:'随身格言，拿不准时翻它',
+  html:`<p class="narr"><span class="who">季九章</span><span class="inner">拿不准时，翻翻随身这本《计然策》——先人格言，我自己抄的。</span></p>
+        <p class="narr mono">〔账本〕左栏东家账，右栏我的棺材本五十两。盈亏算东家的，我只管记得平。</p>
+        <p class="narr mono">码子是我私账的记法，旁边给你阿拉伯数字对着看，不必去认。</p>`,
+  cont:'入局' },
+
 /* —— 序章 —— */
 { id:'S1', era:'序章 · 米市一胜', ledger:'two',
   board:{label:'米 · 水牌', price:90, unit:'/斗', dir:''},
@@ -274,9 +293,14 @@ const scenes = [
   cont:'醒来' ,
   onEnter(){ /* 解锁烂账：首条仍漫漶 */ } },
 
-/* —— 第一章 —— */
-{ id:'KH', era:'第一章 · 执局者', ledger:null,
-  html:`<p class="narr mono">陌生的世道。要谋生，先在“号子”开个户。设“花押”时，季九章郑重编了一道密押。</p>
+/* —— 第一章 · 落地过门（立住命名系统）—— */
+{ id:'KH1', era:'第一章 · 执局者', ledger:null,
+  html:`<p class="narr mono">陌生的世道。要谋生，先在“号子”——这世道买卖的字号——开个户。</p>
+        <p class="narr"><span class="who">季九章</span><span class="inner">墙上滚动的红绿数目，他们唤作“行情”，我看着像水牌。手里这块发光的薄砖能传消息，权当随身邸报罢。</span></p>`,
+  cont:'继续' },
+
+{ id:'KH2', era:'第一章 · 执局者', ledger:null,
+  html:`<p class="narr mono">开户要设一道“花押”——他们叫密码。</p>
         <p class="narr"><span class="who">季九章</span><span class="inner">密本三年一换，尔等的花押……几年一换？</span><span class="mono"> （无人作答）</span></p>`,
   cont:'入市' },
 

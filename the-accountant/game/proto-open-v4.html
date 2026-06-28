@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>账房先生 · 开场 v4（像一本活着的账册）</title>
+<style>
+  :root{--paper:#efe6cf;--paper2:#e8dcbe;--ink:#221d17;--ink2:#5f5440;--faint:#9a8a68;
+        --red:#8f2a20;--rule:#c9b896;--rule2:#b39e78;--seal:#9a2b1e;}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:var(--paper);
+    background-image:
+      radial-gradient(120% 80% at 50% -8%, rgba(255,250,235,.5), transparent 55%),
+      radial-gradient(140% 120% at 50% 112%, rgba(40,28,12,.16), transparent 55%);
+    color:var(--ink);
+    font-family:"Songti SC","STSong","SimSun","Noto Serif CJK SC",serif;
+    font-size:17px; line-height:2.05; letter-spacing:.02em;
+    display:flex; justify-content:center; -webkit-font-smoothing:antialiased;
+  }
+  #app{width:100%; max-width:540px; min-height:100%; padding:0 26px 60px;
+       display:flex; flex-direction:column; justify-content:center; gap:0}
+
+  /* 冷开场 */
+  .open{min-height:88vh; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative}
+  .open .place{font-size:30px; letter-spacing:10px; margin:0}
+  .open .year{font-size:16px; letter-spacing:8px; color:var(--ink2); margin:14px 0 0}
+  .seal{position:absolute; right:8px; top:30%; width:46px; height:46px; border:2px solid var(--seal);
+        color:var(--seal); writing-mode:vertical-rl; display:flex; align-items:center; justify-content:center;
+        font-size:24px; opacity:.55; transform:rotate(-6deg); border-radius:2px}
+  .turn{margin-top:64px; font-family:inherit; font-size:16px; letter-spacing:6px; cursor:pointer;
+        background:transparent; border:none; color:var(--ink); border-bottom:1px solid var(--ink2); padding:6px 10px}
+  .turn:hover{color:var(--red); border-color:var(--red)}
+
+  /* 叙事 */
+  .leaf{padding:14vh 0 0}
+  .place-mini{font-size:12px; letter-spacing:5px; color:var(--faint); margin-bottom:26px}
+  p{margin:14px 0}
+  .narr{color:var(--ink)}
+  .say{color:var(--ink2); padding-left:2px}
+  .pause{height:6px}
+
+  /* 决定：极简，像在账册边上落子 */
+  .choices{margin-top:30px; border-top:1px solid var(--rule2); padding-top:6px}
+  .opt{display:block; width:100%; text-align:left; font-family:inherit; font-size:17px; cursor:pointer;
+       border:none; border-bottom:1px solid var(--rule2); background:transparent; color:var(--ink);
+       padding:16px 4px 16px 28px; position:relative; transition:.15s}
+  .opt::before{content:"○"; position:absolute; left:4px; top:16px; color:var(--faint); font-size:13px}
+  .opt:hover{color:var(--red)} .opt:hover::before{content:"●"; color:var(--red)}
+
+  /* 账册：朱丝栏 + 汉字数目，无箭头无阿拉伯 */
+  .ledger{margin-top:22px; border:1px solid var(--ink); position:relative; background:var(--paper2);
+    background-image:repeating-linear-gradient(90deg, transparent 0 calc(33.3% - .5px),
+      rgba(143,42,32,.18) calc(33.3% - .5px) calc(33.3% + .5px), transparent calc(33.3% + .5px));
+    padding:18px 20px; box-shadow:inset 0 0 0 4px var(--paper2);}
+  .ledger .row{display:flex; gap:14px; align-items:baseline; margin:6px 0}
+  .ledger .k{font-size:13px; color:var(--ink2); min-width:48px}
+  .ledger .n{font-size:19px; letter-spacing:2px}
+  .ledger .add{color:var(--red); font-size:15px; margin-left:6px}
+  .ledger .mark{position:absolute; right:14px; bottom:12px; width:34px; height:34px; border:1.5px solid var(--seal);
+    color:var(--seal); writing-mode:vertical-rl; display:flex; align-items:center; justify-content:center;
+    font-size:15px; opacity:.5; transform:rotate(-5deg)}
+
+  .prose{margin-top:18px; color:var(--ink); line-height:2.1}
+
+  .turn2{align-self:flex-end; margin-top:26px; font-family:inherit; font-size:15px; letter-spacing:3px;
+    cursor:pointer; background:transparent; border:none; border-bottom:1px solid var(--ink2); color:var(--ink); padding:7px 6px}
+  .turn2:hover{color:var(--red); border-color:var(--red)}
+  .end{padding:18vh 0 0; color:var(--ink)}
+  .end .dim{color:var(--faint); font-size:13px; margin-top:22px; letter-spacing:1px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const app=document.getElementById('app');
+let step=0, choice=null;
+const $=h=>{app.innerHTML=h; window.scrollTo(0,0);};
+
+const screens=[
+  // 0 · 冷开场
+  ()=>`<div class="open">
+      <p class="place">绍兴</p>
+      <p class="year">光绪十三年</p>
+      <div class="seal">账</div>
+      <button class="turn" onclick="go(1)">翻开</button>
+    </div>`,
+
+  // 1 · 处境 + 担责的重量
+  ()=>`<div class="leaf">
+      <div class="place-mini">米　市</div>
+      <p class="narr">旱信传到的这天，米市照常喧闹，没有一家动手。</p>
+      <p class="narr">东家把三年的本钱搁在桌上，推过来。</p>
+      <p class="say">“输了，也算我的。”</p>
+      <div class="pause"></div>
+      <p class="say">“只是以后，就没人敢听你的了。”</p>
+      <p class="narr">九章看着那叠银票，没有立刻去接。</p>
+      <button class="turn2" onclick="go(2)">›</button>
+    </div>`,
+
+  // 2 · 决定：极简
+  ()=>`<div class="leaf">
+      <div class="place-mini">米　市</div>
+      <p class="narr">米价没动。旱信，还只是风声。</p>
+      <div class="choices">
+        <button class="opt" onclick="pick('buy')">囤米</button>
+        <button class="opt" onclick="pick('wait')">再等等</button>
+      </div>
+    </div>`,
+
+  // 3 · 结果：账册腔
+  ()=>{
+    if(choice==='buy'){
+      return `<div class="leaf">
+        <div class="place-mini">米　市　·　第三日</div>
+        <div class="ledger">
+          <div class="row"><span class="k">米价</span><span class="n">九十文</span><span class="add">后　一百零六文</span></div>
+          <div class="row"><span class="k">东家</span><span class="n">本 八百两</span><span class="add">添 二百六十两</span></div>
+          <div class="mark">账</div>
+        </div>
+        <div class="prose">东家没说话，把账册往他面前推了推。<br>
+          九章提笔记下数目。笔尖很稳，落得比平日还轻些。</div>
+        <button class="turn2" onclick="go(4)">继续 ›</button>
+      </div>`;
+    }else{
+      return `<div class="leaf">
+        <div class="place-mini">米　市　·　第三日</div>
+        <div class="ledger">
+          <div class="row"><span class="k">米价</span><span class="n">九十文</span><span class="add">后　一百零六文</span></div>
+          <div class="row"><span class="k">东家</span><span class="n">本 八百两</span><span style="color:var(--faint);font-size:14px;margin-left:6px">未动</span></div>
+          <div class="mark">账</div>
+        </div>
+        <div class="prose">九章没囤。东家没提这事。<br>
+          账册上那一栏空着。九章看了一会儿，翻了过去。</div>
+        <button class="turn2" onclick="go(4)">继续 ›</button>
+      </div>`;
+    }
+  },
+
+  // 4 · 收口：不点穿越
+  ()=>`<div class="end">
+      <p>九章后来见过许多市场。米市，茶市，布市。</p>
+      <p>后来换了名字。人没变。</p>
+      <p>只是再后来那一回——押上的，是他自己的。</p>
+      <p class="dim">（演示到此。这版往“像一本旧账册”推了一步。）</p>
+    </div>`,
+];
+
+function go(n){step=n;render();}
+function pick(c){choice=c;go(3);}
+function render(){$(screens[step]());}
+render();
+</script>
+</body>
+</html>

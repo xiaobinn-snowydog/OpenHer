@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>账房先生 · 活账册（形态样片）</title>
+<style>
+  :root{--paper:#ece1c4;--paper2:#e5d8b6;--ink:#241e16;--ink2:#5c5038;--faint:#988968;
+        --red:#8c2920;--rule:#c6b389;--rule2:#ab9670;--seal:#9a2b1e;--bind:#7d6a44;}
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{background:#d9caa4; color:var(--ink);
+       font-family:"Songti SC","STSong","SimSun","Noto Serif CJK SC",serif;
+       font-size:17px; line-height:2.1; letter-spacing:.02em;
+       display:flex; justify-content:center; -webkit-font-smoothing:antialiased}
+
+  /* 一册线装账：左侧装订 + 版框 */
+  .book{position:relative; width:100%; max-width:540px; min-height:100vh;
+        background:var(--paper);
+        background-image:radial-gradient(130% 90% at 50% -8%, rgba(255,250,235,.45), transparent 55%),
+                         radial-gradient(150% 130% at 50% 112%, rgba(40,28,12,.14), transparent 55%);
+        box-shadow:0 0 50px rgba(40,28,12,.25)}
+  .bind{position:absolute; left:0; top:0; bottom:0; width:30px; background:linear-gradient(90deg,#6f5d39,#8b7850);
+        box-shadow:inset -2px 0 4px rgba(0,0,0,.25)}
+  .stitch{position:absolute; left:11px; top:0; bottom:0; width:7px;
+        background:repeating-linear-gradient(180deg, transparent 0 22px, #3a3122 22px 40px)}
+
+  .page{margin-left:30px; min-height:100vh; display:flex; flex-direction:column; padding:30px 26px 40px}
+
+  /* 版框（双边） */
+  .frame{flex:1; border:1px solid var(--ink); box-shadow:inset 0 0 0 4px var(--paper), inset 0 0 0 5px var(--rule2);
+         padding:22px 22px 18px; display:flex; flex-direction:column}
+
+  .head{display:flex; justify-content:space-between; align-items:baseline;
+        border-bottom:1px solid var(--rule2); padding-bottom:10px; margin-bottom:18px;
+        font-size:12px; letter-spacing:3px; color:var(--faint)}
+
+  p{margin:13px 0}
+  .narr{color:var(--ink)}
+  .say{color:var(--ink2)}
+  .pause{height:4px}
+  .grow{flex:1}
+
+  /* 封面 */
+  .cover{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative}
+  .qian{border:1.5px solid var(--ink); background:#f3ebd4; padding:24px 16px;
+        display:flex; flex-direction:column; align-items:center; gap:10px;
+        font-size:28px; line-height:1; box-shadow:0 1px 0 rgba(40,28,12,.2)}
+  .cover .year{margin-top:26px; font-size:14px; letter-spacing:6px; color:var(--ink2)}
+  .cover .by{margin-top:6px; font-size:13px; letter-spacing:4px; color:var(--faint)}
+  .seal{width:48px; height:48px; border:2px solid var(--seal); color:var(--seal);
+        display:flex; align-items:center; justify-content:center; font-size:22px; opacity:.6;
+        transform:rotate(-6deg); border-radius:2px; margin-top:22px}
+
+  /* 账目（朱丝栏） */
+  .acct{margin:16px 0 6px; border:1px solid var(--ink); position:relative; background:var(--paper2);
+    background-image:repeating-linear-gradient(90deg, transparent 0 calc(33.3% - .5px),
+      rgba(140,41,32,.2) calc(33.3% - .5px) calc(33.3% + .5px), transparent calc(33.3% + .5px));
+    padding:16px 18px}
+  .acct .row{display:flex; gap:14px; align-items:baseline; margin:6px 0}
+  .acct .k{font-size:13px; color:var(--ink2); min-width:46px}
+  .acct .n{font-size:19px; letter-spacing:2px}
+  .acct .add{color:var(--red); font-size:15px; margin-left:6px}
+  .acct .mark{position:absolute; right:12px; bottom:10px; width:30px; height:30px; border:1.5px solid var(--seal);
+    color:var(--seal); display:flex; align-items:center; justify-content:center; font-size:13px; opacity:.5; transform:rotate(-5deg)}
+
+  /* 落笔（决定） */
+  .brush{margin-top:18px}
+  .brush .lead{color:var(--faint); font-size:14px; letter-spacing:1px; margin-bottom:4px}
+  .stroke{display:block; width:100%; text-align:left; font-family:inherit; font-size:17px; cursor:pointer;
+       border:none; border-bottom:1px solid var(--rule2); background:transparent; color:var(--ink);
+       padding:14px 4px 14px 26px; position:relative}
+  .stroke::before{content:"丶"; position:absolute; left:6px; top:13px; color:var(--faint); font-size:16px}
+  .stroke:hover{color:var(--red)} .stroke:hover::before{color:var(--red)}
+
+  /* 翻页 */
+  .leaf{align-self:flex-end; margin-top:16px; font-family:inherit; font-size:14px; letter-spacing:3px;
+        cursor:pointer; background:transparent; border:none; color:var(--ink2); padding:8px 2px}
+  .leaf:hover{color:var(--red)}
+  .cover .leaf{align-self:center; margin-top:48px; border-bottom:1px solid var(--ink2); font-size:16px; letter-spacing:6px; color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="book">
+  <div class="bind"><div class="stitch"></div></div>
+  <div class="page" id="page"></div>
+</div>
+<script>
+const page=document.getElementById('page');
+let step=0; const S={bought:null};
+const $=h=>{page.innerHTML=h; window.scrollTo(0,0);};
+const next=()=>{step++; render();};
+const frame=(head,inner,leaf='次页 ›')=>`<div class="frame">
+    <div class="head"><span>${head[0]}</span><span>${head[1]}</span></div>
+    ${inner}<div class="grow"></div>
+    ${leaf?`<button class="leaf" onclick="next()">${leaf}</button>`:''}
+  </div>`;
+
+const screens=[
+  // 0 封面
+  ()=>`<div class="frame"><div class="cover">
+      <div class="qian"><span>绍</span><span>兴</span><span>米</span><span>市</span><span>账</span></div>
+      <div class="year">光绪十三年</div>
+      <div class="by">季氏经手</div>
+      <div class="seal">账</div>
+      <button class="leaf" onclick="next()">翻开</button>
+    </div></div>`,
+
+  // 1 处境
+  ()=>frame(['光绪十三年 · 旱信','卷一 · 一'],
+    `<p class="narr">旱信传到的这天，米市照常喧闹，没有一家动手。</p>
+     <p class="narr">东家把三年的本钱搁在桌上，推过来。</p>
+     <p class="say">“输了，也算我的。”</p>
+     <div class="pause"></div>
+     <p class="say">“只是以后，就没人敢听你的了。”</p>
+     <p class="narr">九章看着那叠银票，没有立刻去接。</p>`),
+
+  // 2 落笔 · 决定
+  ()=>frame(['光绪十三年 · 旱信','卷一 · 二'],
+    `<p class="narr">米价没动。旱信，还只是风声。</p>
+     <div class="brush"><div class="lead">提笔，记下——</div>
+       <button class="stroke" onclick="buy(true)">这就囤米</button>
+       <button class="stroke" onclick="buy(false)">多看两日</button>
+     </div>`, null),
+
+  // 3 账目
+  ()=>{
+    const head = S.bought
+      ? `<p class="narr">九章当日落定，银子换成满仓的米。</p>`
+      : `<p class="narr">九章多看了两日。旱情坐实，才下手——价已起了些，仓还是囤上了。</p>`;
+    const px = S.bought ? '一百零六文' : '一百一十二文';
+    return frame(['光绪十三年 · 第三日','卷一 · 三'],
+      head+
+      `<div class="acct">
+        <div class="row"><span class="k">米价</span><span class="n">九十文</span><span class="add">后　${px}</span></div>
+        <div class="row"><span class="k">东家</span><span class="n">本 八百两</span><span class="add">仓已实</span></div>
+        <div class="mark">账</div>
+      </div>
+      <p class="narr">东家没说话，把账册往他面前推了推。</p>
+      <p class="narr">九章提笔记下数目。笔尖很稳，落得比平日还轻些。</p>`,
+      '次页 ›');
+  },
+
+  // 4 收口
+  ()=>frame(['光绪十三年','卷一 · 末'],
+    `<p class="narr">替东家谋，谋得灵。</p>
+     <p class="narr">银子是他的，风险是他的。</p>
+     <p class="narr">账平了，我就没错。</p>
+     <p style="color:var(--faint);font-size:13px;margin-top:20px">（形态样片：一本活的账册。看这个“器物感”立不立得住。）</p>`, null),
+];
+
+function buy(b){S.bought=b; next();}
+function render(){$(screens[step]());}
+render();
+</script>
+</body>
+</html>

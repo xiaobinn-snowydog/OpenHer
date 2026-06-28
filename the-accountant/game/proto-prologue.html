@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>账房先生 · 序章（完整本 · 克制写实）</title>
+<style>
+  :root{--paper:#efe6cf;--paper2:#e8dcbe;--ink:#221d17;--ink2:#5f5440;--faint:#9a8a68;
+        --red:#8f2a20;--rule:#c9b896;--rule2:#b39e78;--seal:#9a2b1e;}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:var(--paper);
+    background-image:
+      radial-gradient(120% 80% at 50% -8%, rgba(255,250,235,.5), transparent 55%),
+      radial-gradient(140% 120% at 50% 112%, rgba(40,28,12,.16), transparent 55%);
+    color:var(--ink);
+    font-family:"Songti SC","STSong","SimSun","Noto Serif CJK SC",serif;
+    font-size:17px; line-height:2.05; letter-spacing:.02em;
+    display:flex; justify-content:center; -webkit-font-smoothing:antialiased;
+  }
+  #app{width:100%; max-width:540px; min-height:100%; padding:0 26px 64px;
+       display:flex; flex-direction:column; justify-content:center}
+
+  .open{min-height:88vh; display:flex; flex-direction:column; justify-content:center; align-items:center; position:relative}
+  .open .place{font-size:30px; letter-spacing:10px; margin:0}
+  .open .year{font-size:16px; letter-spacing:8px; color:var(--ink2); margin:14px 0 0}
+  .seal{position:absolute; right:8px; top:30%; width:46px; height:46px; border:2px solid var(--seal);
+        color:var(--seal); display:flex; align-items:center; justify-content:center;
+        font-size:22px; opacity:.55; transform:rotate(-6deg); border-radius:2px}
+  .turn{margin-top:64px; font-family:inherit; font-size:16px; letter-spacing:6px; cursor:pointer;
+        background:transparent; border:none; color:var(--ink); border-bottom:1px solid var(--ink2); padding:6px 10px}
+  .turn:hover{color:var(--red); border-color:var(--red)}
+
+  .leaf{padding:13vh 0 0}
+  .place-mini{font-size:12px; letter-spacing:5px; color:var(--faint); margin-bottom:26px}
+  p{margin:14px 0}
+  .narr{color:var(--ink)}
+  .say{color:var(--ink2); padding-left:2px}
+  .pause{height:6px}
+  .center{text-align:center; padding:24vh 0 0; line-height:2.4}
+  .center p{margin:10px 0; letter-spacing:2px}
+
+  .choices{margin-top:30px; border-top:1px solid var(--rule2); padding-top:6px}
+  .opt{display:block; width:100%; text-align:left; font-family:inherit; font-size:17px; cursor:pointer;
+       border:none; border-bottom:1px solid var(--rule2); background:transparent; color:var(--ink);
+       padding:16px 4px 16px 28px; position:relative; transition:.15s}
+  .opt::before{content:"○"; position:absolute; left:4px; top:16px; color:var(--faint); font-size:13px}
+  .opt:hover{color:var(--red)} .opt:hover::before{content:"●"; color:var(--red)}
+
+  .ledger{margin-top:22px; border:1px solid var(--ink); position:relative; background:var(--paper2);
+    background-image:repeating-linear-gradient(90deg, transparent 0 calc(33.3% - .5px),
+      rgba(143,42,32,.18) calc(33.3% - .5px) calc(33.3% + .5px), transparent calc(33.3% + .5px));
+    padding:18px 20px; box-shadow:inset 0 0 0 4px var(--paper2);}
+  .ledger .row{display:flex; gap:14px; align-items:baseline; margin:6px 0}
+  .ledger .k{font-size:13px; color:var(--ink2); min-width:48px}
+  .ledger .n{font-size:19px; letter-spacing:2px}
+  .ledger .add{color:var(--red); font-size:15px; margin-left:6px}
+  .ledger .dim{color:var(--faint); font-size:14px; margin-left:6px}
+  .ledger .mark{position:absolute; right:13px; bottom:11px; width:32px; height:32px; border:1.5px solid var(--seal);
+    color:var(--seal); display:flex; align-items:center; justify-content:center; font-size:14px; opacity:.5; transform:rotate(-5deg)}
+
+  /* 烂账：荒唐、漫漶 */
+  .ruin{margin-top:20px; border:1px dashed var(--rule2); background:var(--paper2); padding:16px 18px;
+        color:#9a8c6c; font-style:italic; line-height:2.2; filter:blur(.2px)}
+
+  .prose{margin-top:18px; color:var(--ink); line-height:2.1}
+  .turn2{align-self:flex-end; margin-top:26px; font-family:inherit; font-size:15px; letter-spacing:3px;
+    cursor:pointer; background:transparent; border:none; border-bottom:1px solid var(--ink2); color:var(--ink); padding:7px 6px}
+  .turn2:hover{color:var(--red); border-color:var(--red)}
+  .note{padding:16vh 0 0}
+  .note .dim{color:var(--faint); font-size:13px; margin-top:22px; letter-spacing:1px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const app=document.getElementById('app');
+let step=0;
+const S={bought:null, sold:null};
+const $=h=>{app.innerHTML=h; window.scrollTo(0,0);};
+const next=()=>{step++; render();};
+const cont=(label='继续 ›')=>`<button class="turn2" onclick="next()">${label}</button>`;
+
+const screens=[
+  // 0 冷开场
+  ()=>`<div class="open">
+      <p class="place">绍兴</p><p class="year">光绪十三年</p>
+      <div class="seal">账</div>
+      <button class="turn" onclick="next()">翻开</button>
+    </div>`,
+
+  // 1 处境 + 担责
+  ()=>`<div class="leaf">
+      <div class="place-mini">米　市</div>
+      <p class="narr">旱信传到的这天，米市照常喧闹，没有一家动手。</p>
+      <p class="narr">东家把三年的本钱搁在桌上，推过来。</p>
+      <p class="say">“输了，也算我的。”</p>
+      <div class="pause"></div>
+      <p class="say">“只是以后，就没人敢听你的了。”</p>
+      <p class="narr">九章看着那叠银票，没有立刻去接。</p>
+      ${cont('›')}
+    </div>`,
+
+  // 2 决定一：要不要下手
+  ()=>`<div class="leaf">
+      <div class="place-mini">米　市</div>
+      <p class="narr">米价没动。旱信，还只是风声。</p>
+      <div class="choices">
+        <button class="opt" onclick="buy(true)">这就囤米</button>
+        <button class="opt" onclick="buy(false)">多看两日</button>
+      </div>
+    </div>`,
+
+  // 3 结果一：账册
+  ()=>{
+    const head = S.bought
+      ? `<p class="narr">九章当日落了定，银子换成满仓的米。</p>`
+      : `<p class="narr">九章多看了两日。旱情坐实，他才下手——价已起了些，仓还是囤上了。</p>`;
+    const px = S.bought ? '一百零六文' : '一百一十二文';
+    return `<div class="leaf">
+      <div class="place-mini">米　市　·　第三日</div>
+      ${head}
+      <div class="ledger">
+        <div class="row"><span class="k">米价</span><span class="n">九十文</span><span class="add">后　${px}</span></div>
+        <div class="row"><span class="k">东家</span><span class="n">本 八百两</span><span class="add">仓已实</span></div>
+        <div class="mark">账</div>
+      </div>
+      <div class="prose">东家没说话，把账册往他面前推了推。<br>
+        九章提笔记下数目。笔尖很稳，落得比平日还轻些。</div>
+      ${cont()}
+    </div>`;
+  },
+
+  // 4 决定二：见好就收，还是再压
+  ()=>`<div class="leaf">
+      <div class="place-mini">米　市　·　旱情正紧</div>
+      <p class="narr">米价一路窜到一百五十八文。满城抢米，仓里的存货，烫手。</p>
+      <div class="choices">
+        <button class="opt" onclick="sell(true)">此刻尽数出手</button>
+        <button class="opt" onclick="sell(false)">再压几日</button>
+      </div>
+    </div>`,
+
+  // 5 结果二：账册（序章全灵——两条都赢）
+  ()=>{
+    const px = S.sold ? '一百五十八文' : '一百七十文';
+    const total = S.sold ? '三千二百两' : '三千六百两';
+    const tail = S.sold
+      ? `<div class="prose">东家于高位尽数出货。<br>九章合上账册，封了口。</div>`
+      : `<div class="prose">价果然又抬了头。东家压到更高才松手，赚得比预想还厚。<br>九章把数目记完，没说什么。</div>`;
+    return `<div class="leaf">
+      <div class="place-mini">米　市　·　出货</div>
+      <div class="ledger">
+        <div class="row"><span class="k">米价</span><span class="n">${px}</span><span class="dim">高位尽出</span></div>
+        <div class="row"><span class="k">东家</span><span class="n">本 八百两</span><span class="add">今 ${total}</span></div>
+        <div class="mark">账</div>
+      </div>
+      ${tail}
+      ${cont()}
+    </div>`;
+  },
+
+  // 6 设宴 · 疯话
+  ()=>`<div class="leaf">
+      <div class="place-mini">东家府上　·　夜</div>
+      <p class="narr">当夜，东家设宴。酒过三巡，他拍着九章的肩。</p>
+      <p class="say">“这点旱情算什么。我做的，是百年之后的大局。”</p>
+      <p class="narr">满座哄笑。</p>
+      <p class="narr">九章替他斟了酒。盈亏都是东家的，他只管一件——账平。</p>
+      ${cont()}
+    </div>`,
+
+  // 7 失踪 · 烂账
+  ()=>`<div class="leaf">
+      <div class="place-mini">东家府上　·　数日后</div>
+      <p class="narr">几日后，东家携了财货，不见了。</p>
+      <p class="narr">桌上只留下一册账。九章翻开——</p>
+      <div class="ruin">……囤股若囤米，择小邑薄仓者……<br>……贵贱无常，唯局可期……<br>（满纸如此。记的什么，一个字也对不上。）</div>
+      ${cont()}
+    </div>`,
+
+  // 8 变故（一行带过，不点穿越）
+  ()=>`<div class="center">
+      <p>他攥着那册账去寻人，</p>
+      <p>寻进一场变故。</p>
+      <p>再睁眼时，已不在那一年。</p>
+      ${cont('…')}
+    </div>`,
+
+  // 9 复盘（师爷自我，留待第一章打碎）
+  ()=>`<div class="note">
+      <p class="narr">替东家谋，谋得灵。</p>
+      <p class="narr">银子是他的，风险是他的。</p>
+      <p class="narr">账平了，我就没错。</p>
+      <p class="dim">序章 · 完。（这一版是完整序章，调子定在“克制写实 + 账册”。）</p>
+    </div>`,
+];
+
+function buy(b){S.bought=b; next();}
+function sell(b){S.sold=b; next();}
+function render(){$(screens[step]());}
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>账房先生 · 涌现沙盘试验（同规则·两遭遇）</title>
+<style>
+  :root{--paper:#ece1c4;--ink:#241e16;--ink2:#5c5038;--faint:#988968;--red:#8c2920;--rule2:#ab9670;--seal:#9a2b1e;}
+  *{box-sizing:border-box}
+  body{margin:0;background:#d9caa4;color:var(--ink);
+    font-family:"Songti SC","STSong","SimSun","Noto Serif CJK SC",serif;
+    font-size:15px;line-height:1.85;display:flex;justify-content:center;padding:18px}
+  .wrap{width:100%;max-width:560px}
+  h1{font-size:17px;letter-spacing:3px;text-align:center;margin:4px 0 4px}
+  .sub{text-align:center;color:var(--ink2);font-size:12.5px;margin-bottom:16px}
+  .legend{font-size:12px;color:var(--faint);text-align:center;margin-bottom:18px;line-height:1.7}
+  .legend b{color:var(--red)}
+  .panel{background:var(--paper);border:1px solid var(--ink);
+    box-shadow:inset 0 0 0 4px var(--paper),inset 0 0 0 5px var(--rule2);padding:16px 18px;margin-bottom:18px}
+  .lever{font-size:13px;color:var(--ink2);letter-spacing:2px;border-bottom:1px solid var(--rule2);padding-bottom:8px;margin-bottom:10px}
+  .lever b{color:var(--ink);font-size:15px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0 10px}
+  th,td{text-align:left;padding:3px 6px;border-bottom:1px dotted var(--rule2)}
+  th{color:var(--faint);font-weight:normal;font-size:12px}
+  td.px{color:var(--red);font-variant-numeric:tabular-nums}
+  .enc{border-left:3px solid var(--seal);background:linear-gradient(90deg,rgba(140,41,32,.07),transparent 60%);
+    padding:8px 0 8px 14px;margin:10px 0}
+  .enc .tag{font-size:11px;color:var(--seal);letter-spacing:2px}
+  .say{color:var(--ink2);margin-top:6px}
+  .jot{color:var(--ink);font-size:13.5px;margin-top:10px;border-top:1px dotted var(--rule2);padding-top:8px}
+  .jot b{color:var(--faint);font-weight:normal;font-size:11px;letter-spacing:2px;display:block}
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap"></div>
+<script>
+/* ===== 规则层（写死·确定·两局完全相同） ===== */
+const DAYS=6;
+const drought=[0,1,2,3,4,4];            // 旱情严重度，外生，两局一样
+function price(day, todayBuy){           // 米价 = 底盘 + 旱情 + 当日买盘压力。可解释，无随机
+  return Math.round(90 + drought[day]*9 + todayBuy*0.7);
+}
+
+/* ===== agent 层（有目标，在规则里各自行动；情节从这里"长"出来） ===== */
+function run(lever){                      // lever: 'early' 趁早重仓 / 'late' 稳着慢进
+  const log=[];
+  let wang={grain:0,cash:3000,name:'王记米行'};   // 对手，贪、爱跟风抢
+  let dong={grain:0,cash:800,name:'东家'};        // 你的东家，按你建议进场
+  let px=90, encounter=null;
+
+  for(let d=0; d<DAYS; d++){
+    let buy=0, dongMove='—', wangMove='—';
+
+    // 东家：按玩家建议决定进场时点与力度
+    const dongEnter = (lever==='early') ? (d===0) : (d===2);
+    const dongSize  = (lever==='early') ? 6 : 2;
+    if(dongEnter && dong.grain===0){ dong.grain+=dongSize; buy+=dongSize; dongMove='进仓 '+dongSize; }
+
+    // 王记：看见米涨就抢；尤其看东家若早早重仓，他加倍跟抢（front-run）
+    const rising = px>90;
+    if(rising && wang.cash>px*2){
+      let amt = (dong.grain>=5 && d<=1) ? 5 : 2;      // 东家早重仓→王记加倍抢
+      wang.grain+=amt; buy+=amt; wangMove='抢进 '+amt;
+    }
+    // 散户：价越高越追（FOMO），确定曲线
+    const retail = Math.max(0, Math.floor((px-90)/6));
+    buy+=retail;
+
+    px = price(d, buy);
+    log.push({d:d+1, drought:drought[d], dong:dongMove, wang:wangMove, retail, px});
+  }
+
+  /* 遭遇：由 agent 末态阈值触发（规则触发，场面涌现） */
+  if(lever==='early'){
+    // 东家与王记都早早压了大仓→利益绑一起→王记上门提议联手
+    encounter={
+      tag:'遭遇 · 涌现',
+      text:'第四日，王记掌柜亲自登门。两家都压了重仓，谁先抛谁吃亏。',
+      say:'“季先生，你我仓里都满。与其互相踩踏，不如约个价，先后脚出货——肉一起吃。”',
+      jot:'两家利害拴在一处了。这局，不是斗，是分赃。先记一笔，看他守不守约。'
+    };
+  }else{
+    // 东家来迟，仓在王记手里→王记反过来拿捏东家
+    encounter={
+      tag:'遭遇 · 涌现',
+      text:'第四日，米价已高，东家仓里还空着大半。王记掌柜捎来口信。',
+      say:'“贵东家来得晚了些。仓在我手里——要货，按我的价。”',
+      jot:'迟了半步，主客就换了位。怪不得东家，是我劝他稳了。账上这一课，记下。'
+    };
+  }
+  return {log, encounter};
+}
+
+/* ===== 渲染 ===== */
+function panel(title, lever){
+  const {log,encounter}=run(lever);
+  const rows=log.map(r=>`<tr>
+     <td>第${r.d}日</td><td>${'·'.repeat(r.drought)||'—'}</td>
+     <td>${r.dong}</td><td>${r.wang}</td><td>${r.retail||'—'}</td>
+     <td class="px">${r.px} 文</td></tr>`).join('');
+  return `<div class="panel">
+    <div class="lever">你的建议：<b>${title}</b></div>
+    <table>
+      <tr><th>日</th><th>旱情</th><th>东家</th><th>王记</th><th>散户</th><th>米价</th></tr>
+      ${rows}
+    </table>
+    <div class="enc"><div class="tag">${encounter.tag}</div>
+      <div>${encounter.text}</div>
+      <div class="say">${encounter.say}</div></div>
+    <div class="jot"><b>季九章 · 页边批注</b>${encounter.jot}</div>
+  </div>`;
+}
+
+document.getElementById('wrap').innerHTML=`
+  <h1>同一套规则 · 两种遭遇</h1>
+  <div class="sub">你只拨一个杆，其余交给 agent 在规则里行动</div>
+  <div class="legend">
+    <b>规则层（写死·两局相同）</b>：米价 = 底盘 + 旱情 + 当日买盘 · 旱情外生 · 全程无随机<br>
+    <b>涌现层</b>：东家/王记/散户各按目标行动，互相反应 → 长出不同盘面与遭遇</div>
+  ${panel('趁早重仓','early')}
+  ${panel('稳着慢进','late')}
+  <div class="legend" style="margin-top:4px">
+    数字两局不同，但同出一条规则、笔笔可追——<b>不是随机，是涌现</b>。<br>
+    （批注现为模板；接 OpenHer 后，这一句由季九章带着记忆即兴写。）</div>`;
+</script>
+</body>
+</html>

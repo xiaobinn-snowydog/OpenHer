@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>水牌 · 擦旧写新（动作样片）</title>
+<style>
+  :root{--ink:#241e16;--red:#8c2920;--faint:#8a7a58;}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:#cbb98f;
+    background-image:radial-gradient(120% 90% at 50% -10%,rgba(255,250,235,.4),transparent 55%);
+    display:flex;align-items:center;justify-content:center;min-height:100%;
+    font-family:"Songti SC","STSong","KaiTi","STKaiti","SimSun",serif}
+
+  /* 挂绳 */
+  .rope{position:fixed;top:0;left:50%;width:2px;height:46px;background:#5b4a2c;transform:translateX(-40px)}
+  .rope2{position:fixed;top:0;left:50%;width:2px;height:46px;background:#5b4a2c;transform:translateX(40px)}
+
+  /* 水牌：木牌 */
+  .board{position:relative;width:230px;padding:30px 22px 26px;
+    background:linear-gradient(180deg,#7a5c34,#6b4f2c);
+    border:3px solid #3f2f1a;border-radius:4px;
+    box-shadow:0 10px 26px rgba(30,18,6,.4),inset 0 0 0 2px rgba(255,240,210,.12);
+    color:#f2e6c8;text-align:center}
+  .board::before{content:"";position:absolute;inset:6px;border:1px solid rgba(242,230,200,.28);border-radius:2px;pointer-events:none}
+  .cap{font-size:13px;letter-spacing:6px;color:#e7d3a2;opacity:.9;margin-bottom:14px}
+  .cap .day{display:block;font-size:11px;letter-spacing:3px;color:#cbb488;margin-top:4px}
+
+  /* 价：粉笔/墨字（占位手写感：描边+细阴影） */
+  .price{font-size:44px;letter-spacing:3px;line-height:1.3;min-height:60px;
+    color:#f6ecd2;text-shadow:0 1px 0 rgba(0,0,0,.35);display:inline-block;position:relative}
+  .price.wipe{animation:wipeout .5s ease-in forwards}
+  .price.write{animation:writein .72s ease-out both}
+  @keyframes wipeout{from{clip-path:inset(0 0 0 0);opacity:1}
+    to{clip-path:inset(0 0 0 100%);opacity:.08}}
+  @keyframes writein{from{clip-path:inset(0 100% 0 0);opacity:.3;filter:blur(1.2px)}
+    to{clip-path:inset(0 0 0 0);opacity:1;filter:blur(0)}}
+
+  .unit{font-size:22px;color:#e7d3a2;margin-left:2px;letter-spacing:1px}
+  .foot{margin-top:16px;font-size:12px;letter-spacing:5px;color:#d8c194}
+  .foot .k{opacity:.75}
+
+  .note{position:fixed;bottom:12px;left:0;right:0;text-align:center;color:#6b5836;font-size:11px;letter-spacing:1px}
+</style>
+</head>
+<body>
+  <div class="rope"></div><div class="rope2"></div>
+  <div class="board">
+    <div class="cap">米 · 时价<span class="day" id="day">旱信初传</span></div>
+    <div><span class="price" id="price">九十文</span></div>
+    <div class="foot"><span class="k">籴</span>　进　·　<span class="k">粜</span>　出</div>
+  </div>
+  <div class="note">动作样片：擦旧 + 写新（字体为占位，正式版用裁剪毛笔体）</div>
+<script>
+  const priceEl=document.getElementById('price');
+  const dayEl=document.getElementById('day');
+  const seq=[
+    {v:'一百零六文', d:'第三日 · 旱情坐实'},
+    {v:'一百五十八文', d:'第五日 · 满城抢米'},
+    {v:'九十文', d:'旱信初传'},
+  ];
+  let i=0;
+  function change(){
+    const {v,d}=seq[i%seq.length]; i++;
+    priceEl.classList.remove('write');
+    priceEl.classList.add('wipe');
+    priceEl.addEventListener('animationend', function h(){
+      priceEl.removeEventListener('animationend',h);
+      priceEl.textContent=v;
+      dayEl.textContent=d;
+      priceEl.classList.remove('wipe');
+      priceEl.classList.add('write');
+    },{once:true});
+  }
+  setInterval(change, 1900);
+  setTimeout(change, 900);
+</script>
+</body>
+</html>
